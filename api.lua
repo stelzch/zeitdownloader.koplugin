@@ -153,7 +153,7 @@ function API.Download(target_folder, username, password, error_callback)
         return nil
     end
 
-    local tmp_file_path = os.tmpname()
+    local tmp_file_path = target_folder .. "/zeit_download.epub"
     local tmp_file = io.open(tmp_file_path, "wb")
     if tmp_file == nil then
         error_callback("Could not open temp file")
@@ -175,7 +175,11 @@ function API.Download(target_folder, username, password, error_callback)
     end
     local filename = string.match(h['content-disposition'], 'filename=(%S+)')
     local target_path = target_folder .. '/' .. filename
-    os.rename(tmp_file_path, target_path)
+    local success, err = os.rename(tmp_file_path, target_path)
+    if success == nil then
+        error_callback("Could not move file: " .. err)
+        return nil
+    end
 
     return target_path
 end
